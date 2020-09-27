@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- FACEBOOK PURPOSE -->
+    <string name="facebook_application_id" translatable="false">1196282800758467</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb1196282800758467</string>
+
+    <string name="app_name">Go4Lunch</string>
+    <string name="title_MapView">MapView</string>
+    <string name="title_ListView">ListView</string>
+    <string name="title_Workmates">Workmates</string>
+</resources>
