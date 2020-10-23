@@ -3,10 +3,6 @@ package com.example.go4lunch.Model.Restaurant;
 
 import java.util.List;
 
-import com.example.go4lunch.Model.Restaurant.Geometry;
-import com.example.go4lunch.Model.Restaurant.OpeningHours;
-import com.example.go4lunch.Model.Restaurant.Photo;
-import com.example.go4lunch.Model.Restaurant.PlusCode;
 import com.google.gson.annotations.SerializedName;
 
 
@@ -31,7 +27,7 @@ public class Result {
     @SerializedName("price_level")
     private Long mPriceLevel;
     @SerializedName("rating")
-    private Long mRating;
+    private Double mRating;
     @SerializedName("reference")
     private String mReference;
     @SerializedName("scope")
@@ -115,11 +111,11 @@ public class Result {
         mPriceLevel = priceLevel;
     }
 
-    public Long getRating() {
+    public Double getRating() {
         return mRating;
    }
 
-    public void setRating(Long rating) {
+    public void setRating(Double rating) {
         mRating = rating;
      }
 

@@ -1,8 +1,9 @@
 package com.example.go4lunch.utils;
 
 
-import com.example.go4lunch.Model.Restaurant.PlaceDetail;
 import com.example.go4lunch.Model.Restaurant.Results;
+import com.example.go4lunch.Model.RestaurantItem.PlaceDetailsResult;
+
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -19,7 +20,7 @@ public interface GoogleService {
     Call<Results> getPlaces(@Query("location") String location, @Query("type") String type, @Query("radius") int radius,@Query("key") String key);
 
     @GET("details/json?" + API_KEY)
-    Call<PlaceDetail> getDetailPlaces(@Query("placeid") String placeId, @Query("key") String key);
+    Call<PlaceDetailsResult> getDetailPlaces(@Query("placeid") String placeId, @Query("key") String key);
 
 
 

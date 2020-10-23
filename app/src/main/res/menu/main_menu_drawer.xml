@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="ExtraText">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/lunch"
+            android:title="your lunch" />
+        <item
+            android:id="@+id/settings"
+            android:title="settings"/>
+        <item
+            android:id="@+id/logout"
+            android:title="log out"/>
+    </group>
+
+
+</menu>

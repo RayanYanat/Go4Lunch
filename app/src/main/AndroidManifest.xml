@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.go4lunch">
 
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -23,6 +24,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".ViewModel.HomeActivity" />
+        <activity android:name=".ViewModel.RestaurantDetails" />
+        <activity android:name=".ViewModel.WebViewActivity" />
+        <activity android:name=".ViewModel.BaseActivity" />
+        <receiver android:name="utils.MyAlarm"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM"/>

@@ -22,9 +22,9 @@ public class RestaurantCall {
 
         final WeakReference<Callbacks> callbacksWeakReference = new WeakReference<>(callbacks);
 
-        GoogleService nytimesService = GoogleService.retrofit.create(GoogleService.class);
+        GoogleService googlePlaceService = GoogleService.retrofit.create(GoogleService.class);
 
-        Call<Results> call = nytimesService.getPlaces(location,type,radius,key);
+        Call<Results> call = googlePlaceService.getPlaces(location,type,radius,key);
 
         call.enqueue(new Callback<Results>() {
 

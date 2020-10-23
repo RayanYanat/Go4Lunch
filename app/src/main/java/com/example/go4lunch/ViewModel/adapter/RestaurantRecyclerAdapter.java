@@ -1,5 +1,8 @@
 package com.example.go4lunch.ViewModel.adapter;
 
+
+import android.annotation.SuppressLint;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,17 +11,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.Model.Restaurant.Result;
+import com.example.go4lunch.Model.Users.User;
+import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRecyclerAdapter.ImageViewHolder> {
 
     private List<Result> mData;
+    private static final int MAX_WIDTH = 75;
+    private static final int MAX_HEIGHT = 75;
+    private float[] distanceResults = new float[1];
+
+    private List<User> usersList;
+
+    private String API_KEY = "key=AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM";
 
     public RestaurantRecyclerAdapter(List<Result> data) {
         mData = data;
@@ -37,13 +55,88 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         notifyDataSetChanged();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RestaurantRecyclerAdapter.ImageViewHolder holder, int position) {
+        LatLng paris = new LatLng(48.806860, 2.272980);
+        String location = paris.latitude+"," + paris.longitude;
+        String currentUserId;
+        usersList = new ArrayList<>();
+
+
         Log.d("TAG", "Response = onBindViewHolder ");
-        Result restauItem =mData.get(position);
+        Result restauItem = mData.get(position);
+
+        //display name
         holder.restaurantName.setText(restauItem.getName());
-     //   holder.restaurantOpeningHour.setText((CharSequence) restauItem.getOpeningHours());
-        Glide.with(holder.itemView.getContext()).load(restauItem.getPhotos().get(0).getPhotoReference()).into(holder.restaurantImg);
+
+        //display adresse
+        holder.restaurantAdresse.setText(restauItem.getVicinity());
+
+        //display user icon
+        holder.nbUserImg.setVisibility(View.VISIBLE);
+
+        //display photo
+        if (!(restauItem.getPhotos() == null)) {
+            if (!(restauItem.getPhotos().isEmpty())) {
+                Glide.with(holder.itemView.getContext()).load("https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + MAX_WIDTH + "&maxheight=" + MAX_HEIGHT + "&photoreference=" + restauItem.getPhotos().get(0).getPhotoReference() + "&" + API_KEY).into(holder.restaurantImg);
+            }
+        }
+
+        //display distance between user and restaurant
+        getDistance(location,restauItem.getGeometry().getLocation());
+        String distance = Integer.toString(Math.round(distanceResults[0]));
+        holder.restaurantDistance.setText(distance + "m");
+
+        //display opening hours
+        if(restauItem.getOpeningHours() != null) {
+            if ( restauItem.getOpeningHours().getOpenNow()) {
+                holder.restaurantOpeningHour.setText("OPEN");
+            } else {
+                holder.restaurantOpeningHour.setText("CLOSE");
+            }
+        }
+
+        if(restauItem.getRating() != null){
+            double rating = restauItem.getRating();
+            if (rating > 1) {
+                holder.ratingStars1.setVisibility(View.VISIBLE);
+                if (rating > 2.5) {
+                    holder.ratingStars2.setVisibility(View.VISIBLE);
+                    if (rating > 4) {
+                        holder.ratingStars3.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
+
+
+        CollectionReference collectionReference = UserHelper.getUsersCollection();
+        collectionReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                usersList.clear();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String uid = document.getData().get("uid").toString();
+                    String username = document.getData().get("username").toString();
+                    Log.d("TAG", "Response = workmateRecycler " + username);
+                    String urlPicture = document.getData().get("urlPicture").toString();
+                    String restoId = document.getData().get("restoId").toString();
+                    User userToAdd = new User(uid,username,urlPicture);
+                    if (restoId.equals(restauItem.getPlaceId()))  {
+                        usersList.add(userToAdd);
+                        holder.restaurantWorkmates.setText("(" + usersList.size() + ")");
+                    }
+                }
+            }
+
+        });
+
+
+
+    }
+
+    public Result getRestaurant(int position){
+        return this.mData.get(position);
     }
 
     @Override
@@ -59,7 +152,12 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         TextView restaurantDistance;
         TextView restaurantOpeningHour;
         TextView restaurantWorkmates;
+
         ImageView restaurantImg;
+        ImageView nbUserImg;
+        ImageView ratingStars1;
+        ImageView ratingStars2;
+        ImageView ratingStars3;
 
         ImageViewHolder(View itemView) {
             super(itemView);
@@ -70,9 +168,25 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
             restaurantOpeningHour = itemView.findViewById(R.id.restau_recycler_view_item_opening_hours);
             restaurantWorkmates = itemView.findViewById(R.id.restau_recycler_view_item_nb_workmates);
             restaurantImg = itemView.findViewById(R.id.restau_recycler_view_item_img);
+            ratingStars1 = itemView.findViewById(R.id.res_list_star_1);
+            ratingStars2 = itemView.findViewById(R.id.res_list_star_2);
+            ratingStars3 = itemView.findViewById(R.id.res_list_star_3);
+            nbUserImg = itemView.findViewById(R.id.res_list_workmates_ic);
+
+
 
 
         }
 
     }
+
+    private void getDistance(String startLocation, com.example.go4lunch.Model.Restaurant.Location endLocation){
+        String[] separatedStart = startLocation.split(",");
+        double startLatitude = Double.parseDouble(separatedStart[0]);
+        double startLongitude = Double.parseDouble(separatedStart[1]);
+        double endLatitude = endLocation.getLat();
+        double endLongitude = endLocation.getLng();
+        android.location.Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude,distanceResults);
+    }
+
 }

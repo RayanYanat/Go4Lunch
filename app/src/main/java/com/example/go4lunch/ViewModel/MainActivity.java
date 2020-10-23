@@ -1,5 +1,7 @@
 package com.example.go4lunch.ViewModel;
 
+
+
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,17 +12,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
+
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 
-import androidx.appcompat.app.AppCompatActivity;
+
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends  BaseActivity {
 
     private static final int RC_SIGN_IN = 122;
 
@@ -64,6 +69,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
     @Override
+    public int getFragmentLayout() {
+        return R.layout.activity_main;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // 4 - Handle SignIn Activity response on activity result
@@ -76,15 +86,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
+                this.createUserInFirestore();
                 startHomeActivity();
             } else { // ERRORS
-                if (response == null) {
-                    //showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                //} else if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
-                  //  showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-                //} else if (response.getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                  //  showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
-                }
             }
         }
     }
@@ -93,6 +97,14 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
+    }
+
+    private void createUserInFirestore(){
+
+        String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+        String username = this.getCurrentUser().getDisplayName();
+        String uid = this.getCurrentUser().getUid();
+        UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
     }
 }
 
