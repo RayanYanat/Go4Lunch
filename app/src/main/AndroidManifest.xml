@@ -27,7 +27,7 @@
         <activity android:name=".ViewModel.RestaurantDetails" />
         <activity android:name=".ViewModel.WebViewActivity" />
         <activity android:name=".ViewModel.BaseActivity" />
-        <receiver android:name="utils.MyAlarm"/>
+        <receiver android:name=".utils.MyAlarm"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -10,4 +10,12 @@
     <string name="title_Workmates">Workmates</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="twitter_consumer_key" translatable="false">
+					ytR3KQCkoL9trULR6pcn77flY</string>
+
+    <string name="twitter_consumer_secret" translatable="false">
+					hiAopU4u3NYiiOrocQMH4lYnWu2zcLnmyLojPIIOqT1yW07Vv6</string>
+
+
 </resources>

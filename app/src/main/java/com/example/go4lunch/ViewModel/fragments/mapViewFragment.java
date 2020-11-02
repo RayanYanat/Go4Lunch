@@ -13,18 +13,25 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 
+
 import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Restaurant.Results;
+import com.example.go4lunch.Model.Users.User;
+import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 import com.example.go4lunch.ViewModel.RestaurantDetails;
+import com.example.go4lunch.ViewModel.adapter.WorkmateRecyclerAdapter;
 import com.example.go4lunch.utils.RestaurantCall;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.List;
 
@@ -32,7 +39,7 @@ import static com.example.go4lunch.utils.GoogleService.API_KEY;
 
 public class mapViewFragment extends Fragment implements OnMapReadyCallback, RestaurantCall.Callbacks{
 
-    private Marker marker;
+
     private GoogleMap map;
     private SupportMapFragment mapFragment;
 
@@ -51,7 +58,7 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
         map = googleMap;
         LatLng paris = new LatLng(48.806860, 2.272980);
         map.addMarker(new MarkerOptions().position(paris).title("Paris"));
-        map.moveCamera(CameraUpdateFactory.zoomBy(13));
+        map.moveCamera(CameraUpdateFactory.zoomBy(5000));
         map.moveCamera(CameraUpdateFactory.newLatLng(paris));
         executeHttpRequestWithRetrofit();
 
@@ -92,9 +99,28 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
 
 
             LatLng restaurantPosition = new LatLng(restaurantLat,restaurantLng);
-            marker = map.addMarker(new MarkerOptions().position(restaurantPosition).title(restaurantName));
-            marker.setTag(restaurantItem.getPlaceId());
-
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(restaurantPosition);
+            markerOptions.title(restaurantName);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_RED)));
+            CollectionReference collectionReference = UserHelper.getUsersCollection();
+            collectionReference.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String uid = document.getData().get("uid").toString();
+                        String username = document.getData().get("username").toString();
+                        Log.d("TAG", "Marker = workmateRecycler " + username);
+                        String urlPicture = document.getData().get("urlPicture").toString();
+                        String selectedResto = document.getData().get("restoName").toString();
+                        String restoId = document.getData().get("restoId").toString();
+                        if (restoId.equals(restaurantItem.getPlaceId())){
+                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_GREEN)));
+                        }
+                        Marker marker = map.addMarker(markerOptions);
+                        marker.setTag(restaurantItem.getPlaceId());
+                    }
+                }
+            });
         }
     }
 

@@ -49,6 +49,7 @@ dependencies {
     implementation'com.firebaseui:firebase-ui-database:4.3.2'
     implementation 'com.google.firebase:firebase-firestore:21.7.1'
     implementation 'com.firebaseui:firebase-ui-firestore:4.3.1'
+    implementation 'com.google.firebase:firebase-auth'
 
     //Firebase
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
@@ -75,6 +76,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.twitter.sdk.android:twitter-core:3.2.0'
 
 }
 apply plugin: 'com.google.gms.google-services'

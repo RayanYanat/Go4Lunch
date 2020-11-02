@@ -23,13 +23,16 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MyAlarm extends BroadcastReceiver {
 
     private Context mContext;
     private List<String> usersList;
-    private String currentUserId;
     private User currentUser;
+    private String restoName ;
+    private String IdResto ;
+    private String urlPicture ;
 
 
 
@@ -40,65 +43,72 @@ public class MyAlarm extends BroadcastReceiver {
         Log.e("alarm", "alarm onReceived" );
         this.mContext=context;
         usersList = new ArrayList<>();
-        currentUserId = UserHelper.getCurrentUserId();
+        String currentUserId = UserHelper.getCurrentUserId();
         UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                String restoName = document.get("restoName").toString();
-                String restoId = document.get("restoId").toString();
-                String urlPicture = document.getData().get("urlPicture").toString();
-                 currentUser = new User(restoName,restoId,urlPicture);
+                User user = document.toObject(User.class);
+                 restoName = document.get("restoName").toString();
+                 IdResto = document.get("restoId").toString();
+                 urlPicture = document.getData().get("urlPicture").toString();
+                Log.e("alarm", "restiID " + IdResto);
+                //currentUser = new User(restoName, restoId, urlPicture);
             }
         });
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null && currentUser.getRestoId() != null){
+
             CollectionReference collectionReference = UserHelper.getUsersCollection();
             collectionReference.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String uid = document.getData().get("uid").toString();
-                        String username = document.getData().get("username").toString();
-                        String restoId = document.getData().get("restoId").toString();
+                if (FirebaseAuth.getInstance().getCurrentUser() != null && IdResto != null) {
+                    Log.e("alarm", "restoID " + restoName);
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String uid = Objects.requireNonNull(document.getData().get("uid")).toString();
+                            String username = Objects.requireNonNull(document.getData().get("username")).toString();
+                            String restoId = Objects.requireNonNull(document.getData().get("restoId")).toString();
 
-                        if (currentUser.getRestoId().equals(restoId)){
-                            usersList.add(username);
+                            if ((IdResto.equals(restoId))) {
+                                usersList.add(username);
 
-                            Log.e("alarm", "triggered" );
-                            NotificationManager notificationManager = (NotificationManager) mContext
-                                    .getSystemService(Context.NOTIFICATION_SERVICE);
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                NotificationChannel channel = new NotificationChannel("CHANNEL_ID",
-                                        "NOTIFICATION_CHANNEL",
-                                        NotificationManager.IMPORTANCE_DEFAULT);
-                                channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DESCRIPTION");
-                                if (notificationManager != null) {
-                                    notificationManager.createNotificationChannel(channel);
+                                Log.e("alarm", "triggered");
+                                NotificationManager notificationManager = (NotificationManager) mContext
+                                        .getSystemService(Context.NOTIFICATION_SERVICE);
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                    NotificationChannel channel = new NotificationChannel("CHANNEL_ID",
+                                            "NOTIFICATION_CHANNEL",
+                                            NotificationManager.IMPORTANCE_DEFAULT);
+                                    channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DESCRIPTION");
+                                    if (notificationManager != null) {
+                                        notificationManager.createNotificationChannel(channel);
+                                    }
                                 }
+
+
+                                Intent notificationIntent = new Intent(mContext, HomeActivity.class);
+                                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                                PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
+                                        notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(
+                                        mContext, "CHANNEL_ID")
+                                        .setContentTitle("Go4Lunch")
+                                        .setSmallIcon(R.drawable.ic_view_list_black_24dp)
+                                        .setContentIntent(pendingIntent)
+                                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                        .setStyle(new NotificationCompat.BigTextStyle()
+                                                .bigText("vous aves décidé de déjeuner chez " + restoName + "vous y passerez un agréable moment avec " + usersList.toString()));
+                                Log.e("alarm", "liste utilisateurs" + usersList.toString());
+                                if (notificationManager != null) {
+                                    notificationManager.notify(1, mNotifyBuilder.build());
+                                }
+
                             }
-
-
-                            Intent notificationIntent = new Intent(mContext, HomeActivity.class);
-                            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-                            PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
-                                    notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                            NotificationCompat.Builder mNotifyBuilder = new NotificationCompat.Builder(
-                                    mContext,"CHANNEL_ID")
-                                    .setContentTitle("Go4Lunch")
-                                    .setContentText("vous aves décidé de déjeuner chez " + currentUser.getRestoName() + "vous y passerez un agréable moment avec " + usersList.toString() )
-                                    .setSmallIcon(R.drawable.ic_view_list_black_24dp)
-                                    .setContentIntent(pendingIntent)
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                                    Log.e("alarm", "liste utilisateurs" + usersList.toString() );
-                            if (notificationManager != null) {
-                                notificationManager.notify(1, mNotifyBuilder.build());
-                            }
-
                         }
                     }
                 }
             });
+
         }
     }
-}
+

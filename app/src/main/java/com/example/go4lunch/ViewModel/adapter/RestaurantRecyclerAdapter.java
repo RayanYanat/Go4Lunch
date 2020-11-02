@@ -60,12 +60,14 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
     public void onBindViewHolder(@NonNull RestaurantRecyclerAdapter.ImageViewHolder holder, int position) {
         LatLng paris = new LatLng(48.806860, 2.272980);
         String location = paris.latitude+"," + paris.longitude;
-        String currentUserId;
+
         usersList = new ArrayList<>();
 
 
         Log.d("TAG", "Response = onBindViewHolder ");
         Result restauItem = mData.get(position);
+
+        holder.restaurantWorkmates.setText("");
 
         //display name
         holder.restaurantName.setText(restauItem.getName());

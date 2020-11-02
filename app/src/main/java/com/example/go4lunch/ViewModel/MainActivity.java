@@ -17,7 +17,10 @@ import com.example.go4lunch.R;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
-
+import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
 
 
 import java.security.MessageDigest;
@@ -28,12 +31,21 @@ import java.util.Arrays;
 public class MainActivity extends  BaseActivity {
 
     private static final int RC_SIGN_IN = 122;
+    private static final String TWITTER_KEY = "ytR3KQCkoL9trULR6pcn77flY";
+    private static final String TWITTER_SECRET = "hiAopU4u3NYiiOrocQMH4lYnWu2zcLnmyLojPIIOqT1yW07Vv6";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       TwitterConfig config = new TwitterConfig.Builder(this)
+               .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET))
+                .debug(true)
+               .build();
+        Twitter.initialize(config);
         setContentView(R.layout.activity_main);
         Button loginBtn = findViewById(R.id.ConnexionButton);
+       // OAuthProvider.Builder provider = OAuthProvider.newBuilder("twitter.com");
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -42,7 +54,7 @@ public class MainActivity extends  BaseActivity {
                                 .createSignInIntentBuilder()
                                 .setTheme(R.style.LoginTheme)
                                 .setAvailableProviders(
-                                        Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                        Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.TWITTER_PROVIDER).build(),
                                                 new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build(),
                                                 new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build()))
                                 .setIsSmartLockEnabled(false, true)
@@ -73,10 +85,10 @@ public class MainActivity extends  BaseActivity {
         return R.layout.activity_main;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // 4 - Handle SignIn Activity response on activity result
+        @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            // 4 - Handle SignIn Activity response on activity result
         this.handleResponseAfterSignIn(requestCode, resultCode, data);
     }
 
@@ -86,7 +98,7 @@ public class MainActivity extends  BaseActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
-                this.createUserInFirestore();
+               this.createUserInFirestore();
                 startHomeActivity();
             } else { // ERRORS
             }
@@ -94,17 +106,17 @@ public class MainActivity extends  BaseActivity {
     }
 
     private void startHomeActivity(){
-
         Intent intent = new Intent(this, HomeActivity.class);
         startActivity(intent);
     }
 
     private void createUserInFirestore(){
 
-        String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
-        String username = this.getCurrentUser().getDisplayName();
-        String uid = this.getCurrentUser().getUid();
-        UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+            String username = this.getCurrentUser().getDisplayName();
+            String uid = this.getCurrentUser().getUid();
+            UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+
     }
 }
 
