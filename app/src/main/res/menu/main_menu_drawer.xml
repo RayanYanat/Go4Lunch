@@ -5,16 +5,17 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
+
         <item
             android:id="@+id/lunch"
-            android:title="your lunch" />
+            android:title="@string/your_lunch" />
         <item
             android:id="@+id/settings"
-            android:title="settings"/>
+            android:title="@string/settings"/>
         <item
             android:id="@+id/logout"
-            android:title="log out"/>
-    </group>
+            android:title="@string/log_out"/>
 
+    </group>
 
 </menu>

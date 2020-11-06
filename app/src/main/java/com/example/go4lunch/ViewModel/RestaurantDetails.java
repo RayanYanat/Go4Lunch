@@ -20,11 +20,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.Model.RestaurantItem.PlaceDetailsResult;
 import com.example.go4lunch.Model.RestaurantItem.Result;
 import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
+
 import com.example.go4lunch.ViewModel.adapter.WorkmateRecyclerAdapter;
 import com.example.go4lunch.utils.RestaurantDetailCall;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,7 +42,7 @@ import java.util.Objects;
 public class RestaurantDetails extends AppCompatActivity implements RestaurantDetailCall.Callbacks {
 
 
-    String API_KEY = "key=AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM";
+    public static final String API_KEY = BuildConfig.google_maps_api_key;
     public static final int MAX_WIDTH = 408;
     public static final int MAX_HEIGHT = 250;
 
@@ -86,7 +88,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
         mRestaurantAddress.setText(getIntent().getStringExtra("PlaceDetailAdresse"));
 
         String photoUrl = getIntent().getStringExtra("placeDetailPhoto");
-        String urlImage = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + MAX_WIDTH + "&maxheight=" + MAX_HEIGHT + "&photoreference=" + photoUrl + "&" + API_KEY;
+        String urlImage = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + MAX_WIDTH + "&maxheight=" + MAX_HEIGHT + "&photoreference=" + photoUrl + "&key=" + API_KEY;
         Glide.with(this).load(urlImage).into(mMainPhoto);
 
         executeHttpRequestWithRetrofit();
@@ -202,7 +204,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
     }
 
     private void makePhoneCall() {
-        if (restoTel != "") {
+        if (!restoTel.equals("")) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
 

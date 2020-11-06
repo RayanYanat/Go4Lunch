@@ -36,7 +36,7 @@
                     android:id="@+id/name_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="restaurant_name"
+                    android:text="@string/restaurant_name"
                     android:textColor="@android:color/white"
                     android:textSize="18sp" />
 
@@ -72,7 +72,7 @@
                 android:id="@+id/address_detail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="address"
+                android:text="@string/address"
                 android:textColor="@android:color/white" />
 
         </LinearLayout>
@@ -100,7 +100,7 @@
                     android:id="@+id/call"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="call"
+                    android:text="@string/call"
                     android:textColor="@color/colorPrimaryDark"
                     android:textAllCaps="true"
                     android:layout_gravity="center"/>
@@ -124,7 +124,7 @@
                     android:id="@+id/like"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="like"
+                    android:text="@string/like"
                     android:textColor="@color/colorPrimaryDark"
                     android:textAllCaps="true"
                     android:layout_gravity="center"/>
@@ -148,7 +148,7 @@
                     android:id="@+id/website"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="website"
+                    android:text="@string/website"
                     android:textColor="@color/colorPrimaryDark"
                     android:textAllCaps="true"
                     android:layout_gravity="center"/>

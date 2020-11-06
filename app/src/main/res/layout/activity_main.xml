@@ -1,72 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/buffet2"
-    android:paddingTop="?attr/actionBarSize">
+    android:orientation="vertical"
+    android:paddingTop="?attr/actionBarSize" >
 
     <ImageView
         android:id="@+id/logo_main"
         android:layout_width="180dip"
         android:layout_height="180dip"
         android:layout_gravity="center_horizontal"
-        android:layout_marginStart="124dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="107dp"
-        android:layout_marginBottom="447dp"
-        android:background="@drawable/meal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
+        android:background="@drawable/meal" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginStart="89dp"
-        android:layout_marginTop="232dp"
-        android:layout_marginEnd="71dp"
-        android:layout_marginBottom="369dp"
+        android:layout_gravity="center"
         android:text="@string/app_name"
         android:textColor="@android:color/white"
-        android:textSize="55dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="55sp"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginStart="33dp"
-        android:layout_marginTop="316dp"
-        android:layout_marginEnd="34dp"
-        android:layout_marginBottom="341dp"
-        android:text="Trouve un restaurant sympa pour déjeuner avec tes collègues."
+        android:text="@string/subtitle_main_activity"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="13sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="10dp"
+        android:textSize="14sp"
+        android:textStyle="italic" />
 
     <Button
         android:id="@+id/ConnexionButton"
-        android:layout_width="149dp"
-        android:layout_height="63dp"
-        android:text="Commencer"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.667" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/start"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        android:background="@color/colorPrimary"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_margin="100dp"
+        android:padding="15dp"/>
+
+</LinearLayout>

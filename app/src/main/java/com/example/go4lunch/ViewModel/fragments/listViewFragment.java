@@ -1,6 +1,9 @@
 package com.example.go4lunch.ViewModel.fragments;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,11 +13,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Restaurant.Results;
 import com.example.go4lunch.R;
@@ -22,7 +28,12 @@ import com.example.go4lunch.ViewModel.RestaurantDetails;
 import com.example.go4lunch.ViewModel.adapter.RestaurantRecyclerAdapter;
 import com.example.go4lunch.utils.ItemClickSupport;
 import com.example.go4lunch.utils.RestaurantCall;
+
+
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.model.LatLng;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +43,11 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
 
     private RecyclerView recyclerView;
     private RestaurantRecyclerAdapter adapter;
-    String API_KEY = "key=AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM";
+    private String API_KEY = BuildConfig.google_maps_api_key;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private String currentLocation;
+    private LatLng currentPosition;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -74,24 +89,21 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
 
     private void onClickRecyclerView() {
         ItemClickSupport.addTo(recyclerView, R.layout.restaurant_item_recyclerview)
-                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Log.e("TAG", "Position : "+position);
-                        Result selectedResult = adapter.getRestaurant(position);
-                        Intent intent = new Intent(getActivity(),RestaurantDetails.class);
-                        intent.putExtra("PlaceDetailResult", selectedResult.getPlaceId());
-                        intent.putExtra("PlaceDetailAdresse",selectedResult.getVicinity());
-                        Log.e("TAG", "address : "+ selectedResult.getVicinity());
-                        intent.putExtra("placeDetailName",selectedResult.getName());
+                .setOnItemClickListener((recyclerView, position, v) -> {
+                    Log.e("TAG", "Position : "+position);
+                    Result selectedResult = adapter.getRestaurant(position);
+                    Intent intent = new Intent(getActivity(),RestaurantDetails.class);
+                    intent.putExtra("PlaceDetailResult", selectedResult.getPlaceId());
+                    intent.putExtra("PlaceDetailAdresse",selectedResult.getVicinity());
+                    Log.e("TAG", "address : "+ selectedResult.getVicinity());
+                    intent.putExtra("placeDetailName",selectedResult.getName());
 
-                        if (!(selectedResult.getPhotos() == null)) {
-                            if (!(selectedResult.getPhotos().isEmpty())) {
-                                intent.putExtra("placeDetailPhoto", selectedResult.getPhotos().get(0).getPhotoReference());
-                            }
+                    if (!(selectedResult.getPhotos() == null)) {
+                        if (!(selectedResult.getPhotos().isEmpty())) {
+                            intent.putExtra("placeDetailPhoto", selectedResult.getPhotos().get(0).getPhotoReference());
                         }
-                        startActivity(intent);
                     }
+                    startActivity(intent);
                 });
     }
 

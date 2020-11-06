@@ -29,7 +29,6 @@ public class MyAlarm extends BroadcastReceiver {
 
     private Context mContext;
     private List<String> usersList;
-    private User currentUser;
     private String restoName ;
     private String IdResto ;
     private String urlPicture ;
@@ -67,7 +66,7 @@ public class MyAlarm extends BroadcastReceiver {
                             String username = Objects.requireNonNull(document.getData().get("username")).toString();
                             String restoId = Objects.requireNonNull(document.getData().get("restoId")).toString();
 
-                            if ((IdResto.equals(restoId))) {
+                            if ((IdResto.equals(restoId) && (!(IdResto.equals(""))))) {
                                 usersList.add(username);
 
                                 Log.e("alarm", "triggered");

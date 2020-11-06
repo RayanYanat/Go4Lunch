@@ -1,6 +1,9 @@
 package com.example.go4lunch.ViewModel.fragments;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,18 +13,19 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 
 
 import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Restaurant.Results;
-import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 import com.example.go4lunch.ViewModel.RestaurantDetails;
-import com.example.go4lunch.ViewModel.adapter.WorkmateRecyclerAdapter;
 import com.example.go4lunch.utils.RestaurantCall;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -30,6 +34,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -42,6 +48,9 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
 
     private GoogleMap map;
     private SupportMapFragment mapFragment;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private String currentLocation;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -96,7 +105,7 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
             final String restaurantName = restaurantItem.getName();
             double restaurantLat = restaurantItem.getGeometry().getLocation().getLat();
             double restaurantLng = restaurantItem.getGeometry().getLocation().getLng();
-
+            Log.d("TAG", "Marker = workmateRecycler location" );
 
             LatLng restaurantPosition = new LatLng(restaurantLat,restaurantLng);
             MarkerOptions markerOptions = new MarkerOptions();
@@ -116,9 +125,10 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
                         if (restoId.equals(restaurantItem.getPlaceId())){
                             markerOptions.icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_GREEN)));
                         }
-                        Marker marker = map.addMarker(markerOptions);
-                        marker.setTag(restaurantItem.getPlaceId());
                     }
+                    Log.d("TAG", "Marker = workmateRecycler addMarker" );
+                    Marker marker = map.addMarker(markerOptions);
+                    marker.setTag(restaurantItem.getPlaceId());
                 }
             });
         }
@@ -127,9 +137,36 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
     private void executeHttpRequestWithRetrofit() {
         LatLng paris = new LatLng(48.806860, 2.272980);
         String location = paris.latitude+"," + paris.longitude;
-        Log.d("TAG", "Response = MapResponse" + location);
-        RestaurantCall.fetchNearbyRestaurant(this, location,"restaurant",2000,API_KEY);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+             getLocation();
+       }else{
+            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
+       }
+
+
+
     }
+
+   private void getLocation(){
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+               Location location = task.getResult();
+                if(location != null){
+                  LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                    currentLocation = currentPosition.latitude+","+currentPosition.longitude;
+                   Log.d("TAG", "Response = MapResponse" + currentLocation);
+                   launchRequest();
+                }
+           }
+        });
+   }
+
+   private void launchRequest(){
+       RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+   }
 
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.go4lunch.ViewModel.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +18,11 @@ import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 import java.util.List;
 
-import bolts.Task;
+
 
 public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateRecyclerAdapter.UserViewHolder> {
 
@@ -49,9 +50,9 @@ public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateRecycl
                 String restoName = document.get("restoName").toString();
                 if (!restoName.equals("")){
                     Log.d("TAG", "restoname = " + restoName);
-                    holder.textView.setText(userItem.getUsername() + " is eating at " + restoName);
+                    holder.textView.setText(String.format("%s%s%s", userItem.getUsername(), holder.itemView.getResources().getString(R.string.user_is_eating_at), restoName));
                 }else {
-                    holder.textView.setText(userItem.getUsername() + " haven't decided yet" );
+                    holder.textView.setText(String.format("%s%s", userItem.getUsername(), holder.itemView.getResources().getString(R.string.no_choice_yet)));
                 }
             }
 

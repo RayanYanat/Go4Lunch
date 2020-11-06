@@ -16,6 +16,8 @@ public class User {
     private List<String> restoLike;
 
 
+
+
     public User(String uid, String username, String urlPicture) {
         this.uid = uid;
         this.username = username;
@@ -35,4 +37,28 @@ public class User {
     public String getRestoId(){return restoId; }
     public List<String> getRestoLike() { return restoLike; }
 
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setRestoName(String restoName) {
+        this.restoName = restoName;
+    }
+
+    public void setRestoId(String restoId) {
+        this.restoId = restoId;
+    }
+
+    public void setUrlPicture(@Nullable String urlPicture) {
+        this.urlPicture = urlPicture;
+    }
+
+    public void setRestoLike(List<String> restoLike) {
+        this.restoLike = restoLike;
+    }
 }

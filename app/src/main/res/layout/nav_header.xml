@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="0.5"
-            android:text="Go4lunch"
+            android:text="@string/go4lunch"
             android:textAlignment="center"
             android:textColor="@android:color/white"
             android:textSize="40sp"
@@ -51,7 +51,7 @@
                 android:id="@+id/drawer_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="2222222222222222"
+                android:text="@string/username"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />

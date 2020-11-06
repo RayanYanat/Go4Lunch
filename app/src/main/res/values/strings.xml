@@ -8,14 +8,24 @@
     <string name="title_MapView">MapView</string>
     <string name="title_ListView">ListView</string>
     <string name="title_Workmates">Workmates</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="twitter_consumer_key" translatable="false">
-					ytR3KQCkoL9trULR6pcn77flY</string>
-
-    <string name="twitter_consumer_secret" translatable="false">
-					hiAopU4u3NYiiOrocQMH4lYnWu2zcLnmyLojPIIOqT1yW07Vv6</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="no_choice_yet">\ haven\'t decided yet \ </string>
+    <string name="user_is_eating_at">\ is eating at \</string>
+    <string name="subtitle_main_activity">Find a nice restaurant for lunch with your colleagues.</string>
+    <string name="start">Start</string>
+    <string name="restaurant_name" translatable="false">restaurant_name</string>
+    <string name="address" translatable="false">address</string>
+    <string name="call">call</string>
+    <string name="like">like</string>
+    <string name="website">website</string>
+    <string name="go4lunch" translatable="false">Go4lunch</string>
+    <string name="username" translatable="false">username</string>
+    <string name="workmates_username" translatable="false">workmates username</string>
+    <string name="search_restaurant" translatable="false">search restaurant</string>
+    <string name="your_lunch">your lunch</string>
+    <string name="settings">settings</string>
+    <string name="log_out">log out</string>
 
 
 </resources>

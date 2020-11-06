@@ -1,8 +1,11 @@
 package com.example.go4lunch.ViewModel;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,15 +21,17 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Restaurant.Results;
-import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 import com.example.go4lunch.ViewModel.fragments.listViewFragment;
@@ -36,7 +41,11 @@ import com.example.go4lunch.ViewModel.fragments.workmatesFragment;
 import com.example.go4lunch.utils.MyAlarm;
 import com.example.go4lunch.utils.RestaurantCall;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -63,7 +72,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar toolbar;
     private NavigationView mNavigationView;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
-    private String API_KEY = "AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM";
+    private String API_KEY = BuildConfig.google_maps_api_key;
+
 
 
 

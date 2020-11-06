@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
@@ -36,7 +37,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
 
     private List<User> usersList;
 
-    private String API_KEY = "key=AIzaSyCCR-afR0LoWYb1wYm4q8loXKuJIvCl7OM";
+    private String API_KEY = BuildConfig.google_maps_api_key;
 
     public RestaurantRecyclerAdapter(List<Result> data) {
         mData = data;
@@ -81,7 +82,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         //display photo
         if (!(restauItem.getPhotos() == null)) {
             if (!(restauItem.getPhotos().isEmpty())) {
-                Glide.with(holder.itemView.getContext()).load("https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + MAX_WIDTH + "&maxheight=" + MAX_HEIGHT + "&photoreference=" + restauItem.getPhotos().get(0).getPhotoReference() + "&" + API_KEY).into(holder.restaurantImg);
+                Glide.with(holder.itemView.getContext()).load("https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + MAX_WIDTH + "&maxheight=" + MAX_HEIGHT + "&photoreference=" + restauItem.getPhotos().get(0).getPhotoReference() + "&key=" + API_KEY).into(holder.restaurantImg);
             }
         }
 

@@ -11,14 +11,34 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        buildConfigField('String', "GoogleKey",GOOGLE_API_KEY )
+        buildConfigField('String', "TwitterSecret",TWITTER_SECRET )
+        buildConfigField('String', "TwitterKey", TWITTER_KEY)
+
+
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug{
+            it.buildConfigField 'String', 'google_maps_api_key', GOOGLE_API_KEY
+            it.buildConfigField('String', 'twitter_key', TWITTER_KEY)
+            it.buildConfigField('String', 'twitter_secret',TWITTER_SECRET )
+
+
+
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            it.buildConfigField 'String', 'google_maps_api_key', GOOGLE_API_KEY
+            it.buildConfigField('String', 'twitter_key', TWITTER_KEY)
+            it.buildConfigField('String', 'twitter_secret',TWITTER_SECRET )
+
+
+
         }
     }
     compileOptions {
@@ -64,7 +84,10 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.libraries.places:places:2.4.0'
-    compile 'com.google.maps.android:android-maps-utils:0.4.4'
+    implementation 'com.google.maps.android:android-maps-utils:0.4.4'
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
+
+
 
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'

@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.go4lunch.BuildConfig;
+import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 
@@ -31,8 +33,9 @@ import java.util.Arrays;
 public class MainActivity extends  BaseActivity {
 
     private static final int RC_SIGN_IN = 122;
-    private static final String TWITTER_KEY = "ytR3KQCkoL9trULR6pcn77flY";
-    private static final String TWITTER_SECRET = "hiAopU4u3NYiiOrocQMH4lYnWu2zcLnmyLojPIIOqT1yW07Vv6";
+    private static final String TWITTER_KEY = BuildConfig.TwitterKey;
+    private static final String TWITTER_SECRET = BuildConfig.TwitterSecret;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,11 +115,28 @@ public class MainActivity extends  BaseActivity {
 
     private void createUserInFirestore(){
 
-            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
-            String username = this.getCurrentUser().getDisplayName();
-            String uid = this.getCurrentUser().getUid();
-            UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
 
+        userId = UserHelper.getCurrentUserId();
+        String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
+        String username = this.getCurrentUser().getDisplayName();
+        String uid = this.getCurrentUser().getUid();
+
+
+        UserHelper.getUser(userId).addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Log.d("TAG", "onSuccess: documentSnapshot exists 2 ");
+                        User currentUser = documentSnapshot.toObject(User.class);
+                        String restoname = currentUser.getRestoName();
+                        String restoId = currentUser.getRestoId();
+                        if(!(restoname.equals("") && restoId.equals(""))){
+                            UserHelper.updateRestoName(restoname, userId);
+                            Log.d("TAG", "update resto name : " + restoname);
+                            UserHelper.updateRestoId(restoId, userId);
+                        }
+                    }else {
+                        UserHelper.createUser(uid, username, urlPicture).addOnFailureListener(this.onFailureListener());
+                    }
+                });
     }
 }
 
