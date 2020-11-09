@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Go4Lunch</string>
+    <string name="title_MapView">carte</string>
+    <string name="title_ListView">restaurants</string>
+    <string name="title_Workmates">collègues</string>
+    <string name="no_choice_yet">\ n\'a pas encore décidé \</string>
+    <string name="user_is_eating_at">\ mange à \</string>
+    <string name="subtitle_main_activity">Trouve un restaurant sympa pour déjeuner avec tes collègues.</string>
+    <string name="start">commencer</string>
+    <string name="call">" tel"</string>
+    <string name="like">j\'aime</string>
+    <string name="website">site</string>
+    <string name="your_lunch">votre repas</string>
+    <string name="settings">option</string>
+    <string name="log_out">deconnexion</string>
+</resources>

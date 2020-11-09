@@ -27,6 +27,8 @@
         <activity android:name=".ViewModel.RestaurantDetails" />
         <activity android:name=".ViewModel.WebViewActivity" />
         <activity android:name=".ViewModel.BaseActivity" />
+        <activity android:name=".ViewModel.NotificationActivity" />
+
         <receiver android:name=".utils.MyAlarm"/>
 
         <meta-data

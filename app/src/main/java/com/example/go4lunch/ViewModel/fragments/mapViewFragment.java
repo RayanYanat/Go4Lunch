@@ -34,8 +34,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -50,6 +48,7 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
     private SupportMapFragment mapFragment;
     FusedLocationProviderClient fusedLocationProviderClient;
     private String currentLocation;
+    private LatLng currentPosition;
 
 
     @Override
@@ -145,27 +144,24 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
             ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
        }
 
-
-
     }
 
    private void getLocation(){
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-               Location location = task.getResult();
-                if(location != null){
-                  LatLng currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
-                    currentLocation = currentPosition.latitude+","+currentPosition.longitude;
-                   Log.d("TAG", "Response = MapResponse" + currentLocation);
-                   launchRequest();
-                }
-           }
-        });
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+           Location location = task.getResult();
+            Log.d("TAG", "Response = location " + location);
+            if(location != null){
+                currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                currentLocation = currentPosition.latitude+","+currentPosition.longitude;
+               Log.d("TAG", "Response = MapResponse" + currentLocation);
+               launchRequest();
+            }
+       });
    }
 
    private void launchRequest(){
        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+       Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
    }
 
 

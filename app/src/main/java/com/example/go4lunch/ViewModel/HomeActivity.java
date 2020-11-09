@@ -1,5 +1,6 @@
 package com.example.go4lunch.ViewModel;
 
+
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -22,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
@@ -40,12 +40,12 @@ import com.example.go4lunch.ViewModel.fragments.workmatesFragment;
 
 import com.example.go4lunch.utils.MyAlarm;
 import com.example.go4lunch.utils.RestaurantCall;
+import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -63,7 +63,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-
+import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RestaurantCall.Callbacks {
@@ -72,7 +72,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar toolbar;
     private NavigationView mNavigationView;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static final int SIGN_OUT_TASK = 10;
     private String API_KEY = BuildConfig.google_maps_api_key;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private String currentLocation;
+    private LatLng currentPosition;
+
+
 
 
 
@@ -144,11 +150,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         switch (id) {
             case R.id.lunch:
                 executeHttpRequestWithRetrofit();
+                Intent detailIntent = new Intent(this, RestaurantDetails.class);
+                startActivity(detailIntent);
+                break;
             case R.id.settings:
-              //  break;
+                Intent notificationIntent = new Intent(this, NotificationActivity.class);
+                startActivity(notificationIntent);
+                break;
             case R.id.logout:
+                signOutUserFromFirebase();
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
+                break;
             default:
                 break;
         }
@@ -165,8 +178,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     Arrays.asList(Place.Field.ID,Place.Field.NAME))
                     .setTypeFilter(TypeFilter.ESTABLISHMENT)
                     .setLocationBias(RectangularBounds.newInstance(
-                            new LatLng(paris.latitude - 0.01, paris.longitude - 0.01),
-                            new LatLng(paris.latitude + 0.01, paris.latitude + 0.01)))
+                            new LatLng(currentPosition.latitude - 0.01, currentPosition.longitude - 0.01),
+                            new LatLng(currentPosition.latitude + 0.01, currentPosition.longitude + 0.01)))
                     .build(this);
             startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
             return true;
@@ -225,22 +238,47 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         LatLng paris = new LatLng(48.806860, 2.272980);
         String location = paris.latitude+"," + paris.longitude;
         Log.d("TAG", "Response = responseRequest" + location);
-        RestaurantCall.fetchNearbyRestaurant(this, location,"restaurant",2000,API_KEY);
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            getLocation();
+        }else{
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
+        }
+
+    }
+
+    private void getLocation(){
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+            Location location = task.getResult();
+            Log.d("TAG", "Response = location " + location);
+            if(location != null){
+                currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                currentLocation = currentPosition.latitude+","+currentPosition.longitude;
+                Log.d("TAG", "Response = MapResponse" + currentLocation);
+                launchRequest();
+            }
+        });
+    }
+
+    private void launchRequest(){
+        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+        Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
     }
 
     @Override
     public void onResponse(Results restaurantResults) {
         List<Result> restoList = restaurantResults.getResults();
-
         String currentUserId = UserHelper.getCurrentUserId();
+        Log.d("TAG", "getCurrentUserID" + currentUserId);
         UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                String restoId = document.get("restoId").toString();
+                  String restoId = document.get("restoId").toString();
+                Log.d("TAG", " OnResponseRequestRetrofit" + restoId );
                 for(int i = 0; i < restoList.size(); i++){
                     Result restaurantItem = restoList.get(i);
                     if(restoId.equals(restaurantItem.getPlaceId()) && (!restoId.equals(""))){
-                        Intent detailIntent = new Intent(this, RestaurantDetails.class);
+                        Intent detailIntent = new Intent(HomeActivity.this, RestaurantDetails.class);
                         detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
                         detailIntent.putExtra("placeDetailName",restaurantItem.getName());
                         detailIntent.putExtra("PlaceDetailResult", restoId);
@@ -249,9 +287,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                                 detailIntent.putExtra("placeDetailPhoto", restaurantItem.getPhotos().get(0).getPhotoReference());
                             }
                         }
-                        startActivity(detailIntent);
                     }
                 }
+            }else {
+                Log.d("TAG", "Response = Error");
             }
         });
     }
@@ -261,6 +300,24 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
     }
+
+    private void signOutUserFromFirebase(){
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+    }
+
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
+        return new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (origin == SIGN_OUT_TASK) {
+                    finish();
+                }
+            }
+        };
+    }
+
 
     @Override
     public void onFailure() {

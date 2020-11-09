@@ -32,6 +32,7 @@ public class MyAlarm extends BroadcastReceiver {
     private String restoName ;
     private String IdResto ;
     private String urlPicture ;
+    String currentUserId = UserHelper.getCurrentUserId();
 
 
 
@@ -42,7 +43,6 @@ public class MyAlarm extends BroadcastReceiver {
         Log.e("alarm", "alarm onReceived" );
         this.mContext=context;
         usersList = new ArrayList<>();
-        String currentUserId = UserHelper.getCurrentUserId();
         UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();

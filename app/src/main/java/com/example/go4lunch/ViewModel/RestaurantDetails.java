@@ -124,7 +124,8 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
     @Override
     public void onResponse(final PlaceDetailsResult restaurantResults) {
 
-        final String detailUrl = restaurantResults.getResult().getWebsite();
+        String detailUrl = restaurantResults.getResult().getWebsite();
+        Log.d("TAG", "Response = responseDetailRequestOnResponse" + detailUrl);
         mImageWebsite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

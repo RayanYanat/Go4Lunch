@@ -1,8 +1,12 @@
 package com.example.go4lunch.ViewModel.adapter;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +25,8 @@ import com.example.go4lunch.Model.Restaurant.Result;
 import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,6 +41,10 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
     private static final int MAX_WIDTH = 75;
     private static final int MAX_HEIGHT = 75;
     private float[] distanceResults = new float[1];
+    FusedLocationProviderClient fusedLocationProviderClient;
+    private Context context;
+    private String currentLocation;
+    private LatLng currentPosition;
 
     private List<User> usersList;
 
@@ -48,6 +59,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
     @Override
     public RestaurantRecyclerAdapter.ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.restaurant_item_recyclerview, parent, false);
+        context=view.getContext();
         return new ImageViewHolder(view);
     }
 
@@ -59,8 +71,22 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RestaurantRecyclerAdapter.ImageViewHolder holder, int position) {
+
         LatLng paris = new LatLng(48.806860, 2.272980);
-        String location = paris.latitude+"," + paris.longitude;
+        String Defaultlocation = paris.latitude+"," + paris.longitude;
+
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                Location location = task.getResult();
+                Log.d("TAG", "Response = Adapterlocation " + location);
+                if(location != null){
+                    currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                    currentLocation = currentPosition.latitude+"," + currentPosition.longitude;
+                    Log.d("TAG", "Response = AdapterLocationResponse" + currentLocation);
+                }
+            });
+
 
         usersList = new ArrayList<>();
 
@@ -87,9 +113,15 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         }
 
         //display distance between user and restaurant
-        getDistance(location,restauItem.getGeometry().getLocation());
-        String distance = Integer.toString(Math.round(distanceResults[0]));
-        holder.restaurantDistance.setText(distance + "m");
+        if (currentLocation != null) {
+            getDistance(currentLocation, restauItem.getGeometry().getLocation());
+            String distance = Integer.toString(Math.round(distanceResults[0]));
+            holder.restaurantDistance.setText(distance + "m");
+        }else{
+            getDistance(Defaultlocation, restauItem.getGeometry().getLocation());
+            String distance = Integer.toString(Math.round(distanceResults[0]));
+            holder.restaurantDistance.setText(distance + "m");
+        }
 
         //display opening hours
         if(restauItem.getOpeningHours() != null) {

@@ -31,12 +31,15 @@ import com.example.go4lunch.utils.RestaurantCall;
 
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 
 
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 public class listViewFragment extends Fragment implements RestaurantCall.Callbacks {
 
@@ -64,14 +67,37 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
         LatLng paris = new LatLng(48.806860, 2.272980);
         String location = paris.latitude+"," + paris.longitude;
         Log.d("TAG", "Response = responseRequest" + location);
-        RestaurantCall.fetchNearbyRestaurant(this, location,"restaurant",2000,API_KEY);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            getLocation();
+        }else{
+            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
+        }
+    }
+
+    private void getLocation(){
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+            Location location = task.getResult();
+            Log.d("TAG", "Response = location " + location);
+            if(location != null){
+                currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                currentLocation = currentPosition.latitude+","+currentPosition.longitude;
+                Log.d("TAG", "Response = MapResponse" + currentLocation);
+                launchRequest();
+            }
+        });
+    }
+
+    private void launchRequest(){
+        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+        Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
     }
 
     @Override
     public void onResponse(Results restaurantResults) {
         Log.d("TAG", "Response = response");
         adapter.setResults(restaurantResults.getResults());
-
     }
 
     @Override
