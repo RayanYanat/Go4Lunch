@@ -64,10 +64,34 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
     public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
+        // Default user position
         LatLng paris = new LatLng(48.806860, 2.272980);
-        map.addMarker(new MarkerOptions().position(paris).title("Paris"));
-        map.moveCamera(CameraUpdateFactory.zoomBy(5000));
-        map.moveCamera(CameraUpdateFactory.newLatLng(paris));
+
+        //retrieve the current user position
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                Location location = task.getResult();
+                Log.d("TAG", "OnMapReady = location " + location);
+                if(location != null){
+                    currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                    currentLocation = currentPosition.latitude+","+currentPosition.longitude;
+                    Log.d("TAG", "Response = OnMapReadyResponseLocation" + currentLocation);
+                    Log.d("TAG", "Response = OnMapReadyResponsePosition" + currentLocation);
+                        map.addMarker(new MarkerOptions().position(currentPosition).title(" Your position").icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_BLUE))));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition,14));
+                }else {
+                    map.addMarker(new MarkerOptions().position(paris).title("Paris").icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_BLUE))));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(paris,14));
+                }
+            });
+        }else{
+            ActivityCompat.requestPermissions(getActivity(),new String[]{Manifest.permission.ACCESS_FINE_LOCATION},44);
+        }
+
+
+
+
         executeHttpRequestWithRetrofit();
 
     }
@@ -155,12 +179,16 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
                 currentLocation = currentPosition.latitude+","+currentPosition.longitude;
                Log.d("TAG", "Response = MapResponse" + currentLocation);
                launchRequest();
+            }else {
+                 currentPosition = new LatLng(48.806860, 2.272980);
+                currentLocation = currentPosition.latitude+"," + currentPosition.longitude;
+                launchRequest();
             }
        });
    }
 
    private void launchRequest(){
-       RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+       RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",1100,API_KEY);
        Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
    }
 

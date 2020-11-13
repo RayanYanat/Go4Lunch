@@ -63,7 +63,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RestaurantCall.Callbacks {
@@ -77,6 +76,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     FusedLocationProviderClient fusedLocationProviderClient;
     private String currentLocation;
     private LatLng currentPosition;
+    private List<Result> restoList;
+
 
 
 
@@ -94,6 +95,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         navView.setOnNavigationItemSelectedListener(navListener);
         getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment,
                 new mapViewFragment()).commit();
+        executeHttpRequestWithRetrofit();
         updateUIWhenCreating();
         configureDrawerLayout();
         configureNavigationView();
@@ -149,9 +151,32 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         switch (id) {
             case R.id.lunch:
-                executeHttpRequestWithRetrofit();
-                Intent detailIntent = new Intent(this, RestaurantDetails.class);
-                startActivity(detailIntent);
+                String currentUserId = UserHelper.getCurrentUserId();
+                Log.d("TAG", "getCurrentUserID" + currentUserId);
+                UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        String restoId = document.get("restoId").toString();
+                        Log.d("TAG", " OnResponseRequestRetrofit" + restoId );
+                        for(int i = 0; i < restoList.size(); i++){
+                            Result restaurantItem = restoList.get(i);
+                            if(restoId.equals(restaurantItem.getPlaceId()) && (!restoId.equals(""))){
+                                Intent detailIntent = new Intent(HomeActivity.this, RestaurantDetails.class);
+                                detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
+                                detailIntent.putExtra("placeDetailName",restaurantItem.getName());
+                                detailIntent.putExtra("PlaceDetailResult", restoId);
+                                if (!(restaurantItem.getPhotos() == null)) {
+                                    if (!(restaurantItem.getPhotos().isEmpty())) {
+                                        detailIntent.putExtra("placeDetailPhoto", restaurantItem.getPhotos().get(0).getPhotoReference());
+                                    }
+                                }
+                                startActivity(detailIntent);
+                            }
+                        }
+                    }else {
+                        Log.d("TAG", "Response = Error");
+                    }
+                });
                 break;
             case R.id.settings:
                 Intent notificationIntent = new Intent(this, NotificationActivity.class);
@@ -173,16 +198,27 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         if (item.getItemId() == R.id.menu_search) {
-            LatLng paris = new LatLng(48.806860, 2.272980);
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,
-                    Arrays.asList(Place.Field.ID,Place.Field.NAME))
-                    .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                    .setLocationBias(RectangularBounds.newInstance(
-                            new LatLng(currentPosition.latitude - 0.01, currentPosition.longitude - 0.01),
-                            new LatLng(currentPosition.latitude + 0.01, currentPosition.longitude + 0.01)))
-                    .build(this);
-            startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
-            return true;
+
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                Location location = task.getResult();
+                Log.d("TAG", "Response = location " + location);
+                if(location != null){
+                    currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
+                    Log.d("TAG", "Response = MapResponse" + currentLocation);
+
+                }else{
+                   currentPosition = new LatLng(48.806860, 2.272980);
+                }
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,
+                        Arrays.asList(Place.Field.ID,Place.Field.NAME))
+                        .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                        .setLocationBias(RectangularBounds.newInstance(
+                                new LatLng(currentPosition.latitude - 0.01, currentPosition.longitude - 0.01),
+                                new LatLng(currentPosition.latitude + 0.01, currentPosition.longitude + 0.01)))
+                        .build(this);
+                startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
+            });
         }
         return super.onOptionsItemSelected(item);
     }
@@ -256,43 +292,22 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 currentLocation = currentPosition.latitude+","+currentPosition.longitude;
                 Log.d("TAG", "Response = MapResponse" + currentLocation);
                 launchRequest();
+            }else {
+                currentPosition = new LatLng(48.806860, 2.272980);
+                currentLocation = currentPosition.latitude+"," + currentPosition.longitude;
+                launchRequest();
             }
         });
     }
 
     private void launchRequest(){
-        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",1100,API_KEY);
         Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
     }
 
     @Override
     public void onResponse(Results restaurantResults) {
-        List<Result> restoList = restaurantResults.getResults();
-        String currentUserId = UserHelper.getCurrentUserId();
-        Log.d("TAG", "getCurrentUserID" + currentUserId);
-        UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                  String restoId = document.get("restoId").toString();
-                Log.d("TAG", " OnResponseRequestRetrofit" + restoId );
-                for(int i = 0; i < restoList.size(); i++){
-                    Result restaurantItem = restoList.get(i);
-                    if(restoId.equals(restaurantItem.getPlaceId()) && (!restoId.equals(""))){
-                        Intent detailIntent = new Intent(HomeActivity.this, RestaurantDetails.class);
-                        detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
-                        detailIntent.putExtra("placeDetailName",restaurantItem.getName());
-                        detailIntent.putExtra("PlaceDetailResult", restoId);
-                        if (!(restaurantItem.getPhotos() == null)) {
-                            if (!(restaurantItem.getPhotos().isEmpty())) {
-                                detailIntent.putExtra("placeDetailPhoto", restaurantItem.getPhotos().get(0).getPhotoReference());
-                            }
-                        }
-                    }
-                }
-            }else {
-                Log.d("TAG", "Response = Error");
-            }
-        });
+        restoList = restaurantResults.getResults();
     }
 
     @Override
@@ -318,22 +333,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
-
     @Override
     public void onFailure() {
 
-    }
-
-    public void startAutocompleteActivity(View view){
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,
-                Arrays.asList(Place.Field.ID,Place.Field.NAME))
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .setLocationBias(RectangularBounds.newInstance(
-                        new LatLng(-33.880490, 151.184363),
-                        new LatLng(-33.858754, 151.229596)))
-                .setCountries(Arrays.asList("FR","EN"))
-                .build(this);
-        startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
     }
 
     @Override
@@ -341,7 +343,22 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                Log.i("TAG", "Place: " + place.getName() + ", " + place.getId());
+                Log.i("TAG", "AutocompletePlace: " + place.getName() + ", " + place.getId());
+                for(int i = 0; i < restoList.size(); i++){
+                    Result restaurantItem = restoList.get(i);
+                    if(place.getId().equals(restaurantItem.getPlaceId()) && (!place.getId().equals(""))){
+                        Intent detailIntent = new Intent(HomeActivity.this, RestaurantDetails.class);
+                        detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
+                        detailIntent.putExtra("placeDetailName",restaurantItem.getName());
+                        detailIntent.putExtra("PlaceDetailResult", place.getId());
+                        if (!(restaurantItem.getPhotos() == null)) {
+                            if (!(restaurantItem.getPhotos().isEmpty())) {
+                                detailIntent.putExtra("placeDetailPhoto", restaurantItem.getPhotos().get(0).getPhotoReference());
+                            }
+                        }
+                        startActivity(detailIntent);
+                    }
+                }
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 //
                 Status status = Autocomplete.getStatusFromIntent(data);

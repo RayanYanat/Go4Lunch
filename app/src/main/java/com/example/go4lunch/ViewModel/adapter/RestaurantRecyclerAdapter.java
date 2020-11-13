@@ -78,12 +78,23 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                Result restauItem = mData.get(position);
                 Location location = task.getResult();
                 Log.d("TAG", "Response = Adapterlocation " + location);
                 if(location != null){
                     currentPosition = new LatLng(location.getLatitude(),location.getLongitude());
                     currentLocation = currentPosition.latitude+"," + currentPosition.longitude;
+
+                    //display distance between user and restaurant
+
                     Log.d("TAG", "Response = AdapterLocationResponse" + currentLocation);
+                    getDistance(currentLocation, restauItem.getGeometry().getLocation());
+                    String distance = Integer.toString(Math.round(distanceResults[0]));
+                    holder.restaurantDistance.setText(distance + "m");
+                }else{
+                    getDistance(Defaultlocation, restauItem.getGeometry().getLocation());
+                    String distance = Integer.toString(Math.round(distanceResults[0]));
+                    holder.restaurantDistance.setText(distance + "m");
                 }
             });
 
@@ -113,6 +124,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         }
 
         //display distance between user and restaurant
+        Log.d("TAG", "Response = AdapterlocationDistance " + currentLocation);
         if (currentLocation != null) {
             getDistance(currentLocation, restauItem.getGeometry().getLocation());
             String distance = Integer.toString(Math.round(distanceResults[0]));
@@ -132,6 +144,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
             }
         }
 
+        //display the stars according to the rating
         if(restauItem.getRating() != null){
             double rating = restauItem.getRating();
             if (rating > 1) {
@@ -146,6 +159,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         }
 
 
+        //display the number of users who have selected a restaurant
         CollectionReference collectionReference = UserHelper.getUsersCollection();
         collectionReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

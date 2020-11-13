@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -25,6 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.go4lunch.ViewModel.NotificationActivity.NOTIFICATIONS_ENABLED;
+import static com.example.go4lunch.ViewModel.NotificationActivity.NOTIFICATIONS_STATE;
+import static com.example.go4lunch.ViewModel.NotificationActivity.PREFS;
+
 public class MyAlarm extends BroadcastReceiver {
 
     private Context mContext;
@@ -43,6 +49,12 @@ public class MyAlarm extends BroadcastReceiver {
         Log.e("alarm", "alarm onReceived" );
         this.mContext=context;
         usersList = new ArrayList<>();
+        SharedPreferences preferences = mContext.getSharedPreferences(PREFS, MODE_PRIVATE);
+        String notifState = preferences.getString(NOTIFICATIONS_STATE,"");
+        Log.e("alarm", "alarm onReceivedNotifState" + notifState );
+
+
+
         UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -58,7 +70,7 @@ public class MyAlarm extends BroadcastReceiver {
 
             CollectionReference collectionReference = UserHelper.getUsersCollection();
             collectionReference.get().addOnCompleteListener(task -> {
-                if (FirebaseAuth.getInstance().getCurrentUser() != null && IdResto != null) {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null && IdResto != null && notifState.equals(NOTIFICATIONS_ENABLED)) {
                     Log.e("alarm", "restoID " + restoName);
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {

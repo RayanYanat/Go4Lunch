@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -22,17 +22,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.Model.RestaurantItem.PlaceDetailsResult;
-import com.example.go4lunch.Model.RestaurantItem.Result;
 import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 
 import com.example.go4lunch.ViewModel.adapter.WorkmateRecyclerAdapter;
 import com.example.go4lunch.utils.RestaurantDetailCall;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -107,10 +104,43 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 //update Firestore
                 String placeidResto = getIntent().getStringExtra("PlaceDetailResult");
                 String restoName = getIntent().getStringExtra("placeDetailName");
                 updateRestoNameInFirebase(placeidResto, restoName);
+
+                UserHelper.getUser(userId).addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Log.d("TAG", "onSuccess: documentSnapshot exists");
+                        String userRestoId = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getRestoId();
+                        if (placeidResto.equals(userRestoId)){
+                            mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_black_24dp));
+                            Toast.makeText(RestaurantDetails.this, "your restaurant is deleted", Toast.LENGTH_SHORT).show();
+                        }else{
+                            mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.fui_done_check_mark));
+                            Toast.makeText(RestaurantDetails.this, "your restaurant is saved", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String placeidResto = getIntent().getStringExtra("PlaceDetailResult");
+        UserHelper.getUser(userId).addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Log.d("TAG", "onSuccess: documentSnapshot exists");
+                String userRestoId = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getRestoId();
+                if (placeidResto.equals(userRestoId)){
+                    mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_black_24dp));
+                }else{
+                    mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.fui_done_check_mark));
+                }
             }
         });
     }

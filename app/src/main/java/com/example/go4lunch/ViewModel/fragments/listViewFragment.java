@@ -85,12 +85,16 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
                 currentLocation = currentPosition.latitude+","+currentPosition.longitude;
                 Log.d("TAG", "Response = MapResponse" + currentLocation);
                 launchRequest();
+            }else {
+                currentPosition = new LatLng(48.806860, 2.272980);
+                currentLocation = currentPosition.latitude+"," + currentPosition.longitude;
+                launchRequest();
             }
         });
     }
 
     private void launchRequest(){
-        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",2000,API_KEY);
+        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",1100,API_KEY);
         Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
     }
 
