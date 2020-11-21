@@ -1,11 +1,10 @@
 package com.example.go4lunch.ViewModel.adapter;
 
 
-import android.Manifest;
+
 import android.annotation.SuppressLint;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -29,7 +26,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -41,7 +37,6 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
     private static final int MAX_WIDTH = 75;
     private static final int MAX_HEIGHT = 75;
     private float[] distanceResults = new float[1];
-    FusedLocationProviderClient fusedLocationProviderClient;
     private Context context;
     private String currentLocation;
     private LatLng currentPosition;
@@ -75,8 +70,9 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantRe
         LatLng paris = new LatLng(48.806860, 2.272980);
         String Defaultlocation = paris.latitude+"," + paris.longitude;
 
+        //get the last position known of the user
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
                 Result restauItem = mData.get(position);
                 Location location = task.getResult();

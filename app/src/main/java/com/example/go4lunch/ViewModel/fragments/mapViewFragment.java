@@ -38,6 +38,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.example.go4lunch.utils.GoogleService.API_KEY;
 
@@ -46,7 +47,7 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
 
     private GoogleMap map;
     private SupportMapFragment mapFragment;
-    FusedLocationProviderClient fusedLocationProviderClient;
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private String currentLocation;
     private LatLng currentPosition;
 
@@ -100,13 +101,14 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
         Log.d("TAG", "Response = displayNearbyPlace" + restaurantResult.size());
 
 
+        // manages the user's click on the info window of the marker
         map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
                 for(int i = 0; i < restaurantResult.size(); i++){
                     final Result restaurantItem = restaurantResult.get(i);
                     final String restaurantId = restaurantItem.getPlaceId();
-                    if(restaurantId.equals(marker.getTag().toString())) {
+                    if(restaurantId.equals(Objects.requireNonNull(marker.getTag()).toString())) {
                         Intent detailIntent = new Intent(getContext(), RestaurantDetails.class);
                         detailIntent.putExtra("PlaceDetailResult",marker.getTag().toString());
                         detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
@@ -123,6 +125,7 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
                 }
         });
 
+        // manage the color of the markers
         for (int i = 0; i < restaurantResult.size(); i++) {
             final Result restaurantItem = restaurantResult.get(i);
             final String restaurantName = restaurantItem.getName();
@@ -139,12 +142,9 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
             collectionReference.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        String uid = document.getData().get("uid").toString();
-                        String username = document.getData().get("username").toString();
+                        String username = Objects.requireNonNull(document.getData().get("username")).toString();
                         Log.d("TAG", "Marker = workmateRecycler " + username);
-                        String urlPicture = document.getData().get("urlPicture").toString();
-                        String selectedResto = document.getData().get("restoName").toString();
-                        String restoId = document.getData().get("restoId").toString();
+                        String restoId = Objects.requireNonNull(document.getData().get("restoId")).toString();
                         if (restoId.equals(restaurantItem.getPlaceId())){
                             markerOptions.icon(BitmapDescriptorFactory.defaultMarker((BitmapDescriptorFactory.HUE_GREEN)));
                         }
@@ -158,8 +158,6 @@ public class mapViewFragment extends Fragment implements OnMapReadyCallback, Res
     }
 
     private void executeHttpRequestWithRetrofit() {
-        LatLng paris = new LatLng(48.806860, 2.272980);
-        String location = paris.latitude+"," + paris.longitude;
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){

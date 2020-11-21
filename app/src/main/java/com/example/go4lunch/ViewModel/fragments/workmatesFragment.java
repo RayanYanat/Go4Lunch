@@ -58,6 +58,8 @@ public class workmatesFragment extends Fragment {
         if(item!=null)
             item.setVisible(false);
     }
+
+
     private void setUpRecyclerView() {
          List<User> results = new ArrayList<>();
         Log.d("TAG", "Response = workmateRecycler ");

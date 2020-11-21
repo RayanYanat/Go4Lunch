@@ -12,7 +12,6 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 
-import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
 import com.example.go4lunch.ViewModel.HomeActivity;
@@ -37,7 +36,7 @@ public class MyAlarm extends BroadcastReceiver {
     private List<String> usersList;
     private String restoName ;
     private String IdResto ;
-    private String urlPicture ;
+
     String currentUserId = UserHelper.getCurrentUserId();
 
 
@@ -58,23 +57,20 @@ public class MyAlarm extends BroadcastReceiver {
         UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                User user = document.toObject(User.class);
                  restoName = document.get("restoName").toString();
                  IdResto = document.get("restoId").toString();
-                 urlPicture = document.getData().get("urlPicture").toString();
                 Log.e("alarm", "restiID " + IdResto);
-                //currentUser = new User(restoName, restoId, urlPicture);
             }
         });
 
 
+             Log.e("alarm", "notifState " + notifState);
             CollectionReference collectionReference = UserHelper.getUsersCollection();
             collectionReference.get().addOnCompleteListener(task -> {
                 if (FirebaseAuth.getInstance().getCurrentUser() != null && IdResto != null && notifState.equals(NOTIFICATIONS_ENABLED)) {
                     Log.e("alarm", "restoID " + restoName);
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String uid = Objects.requireNonNull(document.getData().get("uid")).toString();
                             String username = Objects.requireNonNull(document.getData().get("username")).toString();
                             String restoId = Objects.requireNonNull(document.getData().get("restoId")).toString();
 
@@ -111,6 +107,7 @@ public class MyAlarm extends BroadcastReceiver {
                                                 .bigText("vous aves décidé de déjeuner chez " + restoName + "vous y passerez un agréable moment avec " + usersList.toString()));
                                 Log.e("alarm", "liste utilisateurs" + usersList.toString());
                                 if (notificationManager != null) {
+                                    Log.e("alarm", "notificationManager");
                                     notificationManager.notify(1, mNotifyBuilder.build());
                                 }
 

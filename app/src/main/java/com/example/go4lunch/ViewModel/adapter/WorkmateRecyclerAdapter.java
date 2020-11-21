@@ -1,7 +1,5 @@
 package com.example.go4lunch.ViewModel.adapter;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.go4lunch.Model.Users.User;
 import com.example.go4lunch.Model.Users.UserHelper;
 import com.example.go4lunch.R;
+import com.example.go4lunch.utils.StringFormat;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 
@@ -50,9 +49,9 @@ public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateRecycl
                 String restoName = document.get("restoName").toString();
                 if (!restoName.equals("")){
                     Log.d("TAG", "restoname = " + restoName);
-                    holder.textView.setText(String.format("%s%s%s", userItem.getUsername(), holder.itemView.getResources().getString(R.string.user_is_eating_at), restoName));
+                    holder.textView.setText(StringFormat.getFormattedString(userItem.getUsername(), holder.itemView.getResources().getString(R.string.user_is_eating_at), restoName));
                 }else {
-                    holder.textView.setText(String.format("%s%s", userItem.getUsername(), holder.itemView.getResources().getString(R.string.no_choice_yet)));
+                    holder.textView.setText(StringFormat.getFormattedString2( userItem.getUsername(), holder.itemView.getResources().getString(R.string.no_choice_yet)));
                 }
             }
 

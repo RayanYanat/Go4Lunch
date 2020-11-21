@@ -63,23 +63,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, RestaurantCall.Callbacks {
 
 
     private Toolbar toolbar;
-    private NavigationView mNavigationView;
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
-    private static final int SIGN_OUT_TASK = 10;
     private String API_KEY = BuildConfig.google_maps_api_key;
     FusedLocationProviderClient fusedLocationProviderClient;
     private String currentLocation;
     private LatLng currentPosition;
     private List<Result> restoList;
-
-
-
 
 
 
@@ -120,6 +116,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                     selectedFragment = new workmatesFragment();
                     break;
             }
+            assert selectedFragment != null;
             getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment,
                     selectedFragment).commit();
             return true ;
@@ -153,6 +150,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             case R.id.lunch:
                 String currentUserId = UserHelper.getCurrentUserId();
                 Log.d("TAG", "getCurrentUserID" + currentUserId);
+
+                //sends the user to the page of the restaurant he has selected
                 UserHelper.getUser(currentUserId).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
@@ -199,6 +198,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (item.getItemId() == R.id.menu_search) {
 
+            //auto-complete search settings
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
                 Location location = task.getResult();
@@ -225,10 +225,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
     private void updateUIWhenCreating(){
 
-        mNavigationView = findViewById(R.id.activity_main_nav_view);
+        NavigationView mNavigationView = findViewById(R.id.activity_main_nav_view);
 
         if (this.getCurrentUser() != null){
-            View headerContainer = mNavigationView.getHeaderView(0); // This returns the container layout in nav_drawer_header.xml (e.g., your RelativeLayout or LinearLayout)
+            View headerContainer = mNavigationView.getHeaderView(0);
             ImageView mImageView = headerContainer.findViewById(R.id.drawer_imageview_profile);
             TextView mNameText = headerContainer.findViewById(R.id.drawer_username);
 
@@ -241,7 +241,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         .into(mImageView);
             }
 
-            //Get email from Firebase
 
             String name = TextUtils.isEmpty(this.getCurrentUser().getDisplayName()) ? "email not found" : this.getCurrentUser().getDisplayName();
 
@@ -319,16 +318,14 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private void signOutUserFromFirebase(){
         AuthUI.getInstance()
                 .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
     }
 
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(){
         return new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                if (origin == SIGN_OUT_TASK) {
-                    finish();
-                }
+                finish();
             }
         };
     }
@@ -342,11 +339,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                //manages the user's click on a item oh the auto-complete search
+                Place place = Autocomplete.getPlaceFromIntent(Objects.requireNonNull(data));
                 Log.i("TAG", "AutocompletePlace: " + place.getName() + ", " + place.getId());
                 for(int i = 0; i < restoList.size(); i++){
                     Result restaurantItem = restoList.get(i);
-                    if(place.getId().equals(restaurantItem.getPlaceId()) && (!place.getId().equals(""))){
+                    if(Objects.requireNonNull(place.getId()).equals(restaurantItem.getPlaceId()) && (!place.getId().equals(""))){
                         Intent detailIntent = new Intent(HomeActivity.this, RestaurantDetails.class);
                         detailIntent.putExtra("PlaceDetailAdresse",restaurantItem.getVicinity());
                         detailIntent.putExtra("placeDetailName",restaurantItem.getName());
@@ -361,8 +360,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 }
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 //
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i("TAG", status.getStatusMessage());
+                Status status = Autocomplete.getStatusFromIntent(Objects.requireNonNull(data));
+                Log.i("TAG", Objects.requireNonNull(status.getStatusMessage()));
             }  // The user canceled the operation.
         }
         super.onActivityResult(requestCode, resultCode, data);

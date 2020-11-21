@@ -105,7 +105,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
             @Override
             public void onClick(View v) {
 
-                //update Firestore
+                //update resto name in Firestore
                 String placeidResto = getIntent().getStringExtra("PlaceDetailResult");
                 String restoName = getIntent().getStringExtra("placeDetailName");
                 updateRestoNameInFirebase(placeidResto, restoName);
@@ -114,7 +114,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
                     if (documentSnapshot.exists()) {
                         Log.d("TAG", "onSuccess: documentSnapshot exists");
                         String userRestoId = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getRestoId();
-                        if (placeidResto.equals(userRestoId)){
+                        if (Objects.requireNonNull(placeidResto).equals(userRestoId)){
                             mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_black_24dp));
                             Toast.makeText(RestaurantDetails.this, "your restaurant is deleted", Toast.LENGTH_SHORT).show();
                         }else{
@@ -136,7 +136,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
             if (documentSnapshot.exists()) {
                 Log.d("TAG", "onSuccess: documentSnapshot exists");
                 String userRestoId = Objects.requireNonNull(documentSnapshot.toObject(User.class)).getRestoId();
-                if (placeidResto.equals(userRestoId)){
+                if (Objects.requireNonNull(placeidResto).equals(userRestoId)){
                     mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_black_24dp));
                 }else{
                     mFloatingActionButton.setImageDrawable(getResources().getDrawable(R.drawable.fui_done_check_mark));
@@ -205,11 +205,11 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
         collectionReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
-                    String uid = document.getData().get("uid").toString();
-                    String username = document.getData().get("username").toString();
+                    String uid = Objects.requireNonNull(document.getData().get("uid")).toString();
+                    String username = Objects.requireNonNull(document.getData().get("username")).toString();
                     Log.d("TAG", "Response = workmateRecycler " + username);
-                    String urlPicture = document.getData().get("urlPicture").toString();
-                    String restoId = document.getData().get("restoId").toString();
+                    String urlPicture = Objects.requireNonNull(document.getData().get("urlPicture")).toString();
+                    String restoId = Objects.requireNonNull(document.getData().get("restoId")).toString();
                     Log.d("TAG", " workmateRecycler restoId = " + restoId);
                     User userToAdd = new User(uid,username,urlPicture);
                    if(restoId.equals(result)){
@@ -274,7 +274,7 @@ public class RestaurantDetails extends AppCompatActivity implements RestaurantDe
             if (documentSnapshot.exists()) {
                 Log.d("TAG", "onSuccess: documentSnapshot exists 2 ");
                 User restoOfTheDay = documentSnapshot.toObject(User.class);
-                if(restoOfTheDay.getRestoId().equals(restoID) ) {
+                if(Objects.requireNonNull(restoOfTheDay).getRestoId().equals(restoID) ) {
                     Log.d("TAG", "if updateResto ");
                     UserHelper.updateRestoName( "",userId);
                     UserHelper.updateRestoId("",userId);

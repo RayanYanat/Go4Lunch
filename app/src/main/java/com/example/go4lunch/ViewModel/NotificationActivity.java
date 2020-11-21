@@ -14,9 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.go4lunch.R;
 
-import java.util.List;
-
-
 public class NotificationActivity extends AppCompatActivity {
 
     Switch mSwitch;

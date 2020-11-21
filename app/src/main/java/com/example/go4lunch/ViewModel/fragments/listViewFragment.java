@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,8 +46,7 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
 
     private RecyclerView recyclerView;
     private RestaurantRecyclerAdapter adapter;
-    private String API_KEY = BuildConfig.google_maps_api_key;
-    FusedLocationProviderClient fusedLocationProviderClient;
+    private FusedLocationProviderClient fusedLocationProviderClient;
     private String currentLocation;
     private LatLng currentPosition;
 
@@ -76,6 +75,7 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
         }
     }
 
+    //get the last position known of the user
     private void getLocation(){
         fusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
             Location location = task.getResult();
@@ -94,7 +94,8 @@ public class listViewFragment extends Fragment implements RestaurantCall.Callbac
     }
 
     private void launchRequest(){
-        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",1100,API_KEY);
+        String API_KEY = BuildConfig.google_maps_api_key;
+        RestaurantCall.fetchNearbyRestaurant(this, currentLocation,"restaurant",1100, API_KEY);
         Log.d("TAG", "Response = LaunchedMapResponse" + currentLocation);
     }
 
